@@ -8,23 +8,24 @@ import { Link } from 'react-router-dom';
 
 const Shop = () => {
     const [products, setProducts] = useState([]);
-    const [cart, setCart] = useCart(products);
+    const [cart, setCart] = useCart();
     const [page, setPage] = useState(0);
     const [pageCount, setPageCount] = useState(0)
     // products to be rendered on the UI
     const [displayProducts, setDisplayProducts] = useState([]);
+    const size = 10
 
     useEffect(() => {
-        fetch('http://localhost:5000/products')
+        fetch(`http://localhost:5000/products?page=${page}&&size=${size}`)
             .then(res => res.json())
             .then(data => {
                 setProducts(data.products);
                 setDisplayProducts(data.products);
                 const count = data.count
-                const pageNumber = Math.ceil(count/10)
+                const pageNumber = Math.ceil(count / size)
                 setPageCount(pageNumber)
             });
-    }, []);
+    }, [page]);
 
 
 
@@ -65,18 +66,22 @@ const Shop = () => {
             <div className="shop-container">
                 <div className="product-container">
                     {
-                        displayProducts.map(product => <Product
-                            key={product.key}
-                            product={product}
-                            handleAddToCart={handleAddToCart}
-                        >
-                        </Product>)
+                        !displayProducts?(
+                            <h1>loading...........</h1>
+                        ):(
+                            displayProducts.map(product => <Product
+                                key={product.key}
+                                product={product}
+                                handleAddToCart={handleAddToCart}
+                            >
+                            </Product>)
+                        )
                     }
                     <div className="pagination">
-                        {[...Array(pageCount).keys()].map(number=><button
-                        className={number === page? 'selected':''}
-                        key={number}
-                        onClick={() => setPage(number)}
+                        {[...Array(pageCount).keys()].map(number => <button
+                            className={number === page ? 'selected' : ''}
+                            key={number}
+                            onClick={() => setPage(number)}
                         >{number}</button>)}
                     </div>
                 </div>
